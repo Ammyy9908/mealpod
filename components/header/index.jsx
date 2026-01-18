@@ -1,14 +1,16 @@
 'use client'
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 function index() {
   const { data: session, status } = useSession()
   const pathname = usePathname()
+  const router = useRouter()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   // Always show dropdown in development for local testing
-  const isDevelopment = process.env.NODE_ENV === 'development'
+  const isDevelopment = false;
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(isDevelopment)
   const [userProfile, setUserProfile] = useState(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(false)
@@ -110,9 +112,12 @@ function index() {
     }
   }
 
-  const handleMenuClick = () => {
+  const handleMenuClick = (path) => {
     if (!isDevelopment) {
       setIsUserDropdownOpen(false)
+    }
+    if (path) {
+      router.push(path)
     }
   }
 
@@ -271,55 +276,72 @@ function index() {
 
                           {/* Navigation Menu */}
                           <div className='py-2'>
-                            <button onClick={handleMenuClick} className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px] sm:min-h-[48px]'>
+                            <Link 
+                              href="/my-account/my-profile"
+                              onClick={() => handleMenuClick('/my-account/my-profile')}
+                              className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px] sm:min-h-[48px]'
+                            >
                               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-600 flex-shrink-0'>
                                 <path d="M10 10C11.6569 10 13 8.65685 13 7C13 5.34315 11.6569 4 10 4C8.34315 4 7 5.34315 7 7C7 8.65685 8.34315 10 10 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="M2 18C2 14.6863 5.58172 12 10 12C14.4183 12 18 14.6863 18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                               <span className='text-sm sm:text-sm text-gray-700 font-medium'>My Account</span>
-                            </button>
+                            </Link>
 
-                            <button onClick={handleMenuClick} className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px] sm:min-h-[48px]'>
+                            <Link 
+                              href="/my-account/my-orders"
+                              onClick={() => handleMenuClick('/my-account/my-orders')}
+                              className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px] sm:min-h-[48px]'
+                            >
                               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-600 flex-shrink-0'>
                                 <path d="M3 5H17L16 15H4L3 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="M7 7L7.5 9M12.5 9L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="M8 12L9 13L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                               <span className='text-sm text-gray-700 font-medium'>My Orders</span>
-                            </button>
+                            </Link>
 
-                            <button onClick={handleMenuClick} className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px] sm:min-h-[48px]'>
-                              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-600 flex-shrink-0'>
+                            <div className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 text-gray-400 cursor-not-allowed opacity-60 min-h-[56px] sm:min-h-[48px]'>
+                              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-400 flex-shrink-0'>
                                 <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="M7 7H13M7 11H13M7 15H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
-                              <span className='text-sm text-gray-700 font-medium flex-1'>CashBack</span>
-                              <span className='text-sm text-gray-500'>0</span>
-                            </button>
+                              <span className='text-sm text-gray-400 font-medium flex-1'>CashBack</span>
+                              <span className='text-sm text-gray-400'>0</span>
+                            </div>
 
-                            <button onClick={handleMenuClick} className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px] sm:min-h-[48px]'>
+                            <Link 
+                              href="/my-account/my-addresses"
+                              onClick={() => handleMenuClick('/my-account/my-addresses')}
+                              className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px] sm:min-h-[48px]'
+                            >
                               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-600 flex-shrink-0'>
                                 <path d="M10 2C7.23858 2 5 4.23858 5 7C5 9.76142 7.23858 12 10 12C12.7614 12 15 9.76142 15 7C15 4.23858 12.7614 2 10 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="M10 12V18M6 18H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                               <span className='text-sm text-gray-700 font-medium'>Manage Addresses</span>
-                            </button>
+                            </Link>
 
-                            <button onClick={handleMenuClick} className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px] sm:min-h-[48px]'>
-                              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-600 flex-shrink-0'>
+                            <div className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 text-gray-400 cursor-not-allowed opacity-60 min-h-[56px] sm:min-h-[48px]'>
+                              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-400 flex-shrink-0'>
                                 <rect x="3" y="5" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="M7 9H13M7 13H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
-                              <span className='text-sm text-gray-700 font-medium'>My Wallet</span>
-                            </button>
+                              <span className='text-sm text-gray-400 font-medium flex-1'>My Wallet</span>
+                              <span className='px-2 py-0.5 bg-gray-200 text-gray-600 text-xs font-medium rounded-full'>Soon</span>
+                            </div>
 
-                            <button onClick={handleMenuClick} className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px] sm:min-h-[48px]'>
+                            <Link 
+                              href="/my-account/my-help"
+                              onClick={() => handleMenuClick('/my-account/my-help')}
+                              className='w-full px-4 py-4 sm:py-3 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px] sm:min-h-[48px]'
+                            >
                               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-600 flex-shrink-0'>
                                 <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                 <path d="M10 6V10M10 14H10.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                               <span className='text-sm text-gray-700 font-medium'>Help</span>
-                            </button>
+                            </Link>
 
                             <div className='border-t border-gray-100 mt-1'>
                               <button 
