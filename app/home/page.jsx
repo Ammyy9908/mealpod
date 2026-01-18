@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import { useRouter } from 'next/navigation'
 import Header from '../../components/header/index.jsx'
 import Footer from '../../components/footer/index.jsx'
 import Container from '../../components/container/index.jsx'
@@ -9,6 +10,7 @@ import StatCard from '../../components/stat-card/index.jsx'
 import { useState, useEffect } from 'react';
 
 function page() {
+  const router = useRouter()
   const [subscriptions, setSubscriptions] = useState([]);
   
   useEffect(() => {
@@ -29,6 +31,10 @@ function page() {
     
     fetchSubscriptions();
   }, []);
+
+  const handleMealCardClick = (skuId) => {
+    router.push(`/subscriptions/${skuId}`)
+  }
   return (
     <>
         <Header />
@@ -47,7 +53,12 @@ function page() {
           <p className='text-gray-500 text-sm sm:text-base mb-6 sm:mb-8'>Choose from our specially designed meal plans to suit your needs and preferences.</p>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
            {subscriptions.map((subscription) => (
-            <MealCard key={subscription.sku_id} title={subscription.name} image={subscription.image_key} />
+            <MealCard 
+              key={subscription.sku_id} 
+              title={subscription.name} 
+              image={subscription.image_key}
+              onClick={() => handleMealCardClick(subscription.sku_id)}
+            />
            ))}
           </div>
          </section>
