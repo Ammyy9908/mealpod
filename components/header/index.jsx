@@ -193,7 +193,7 @@ function index() {
                           <circle cx="12" cy="12" r="3" fill="#22c55e"/>
                       </svg>
                       <a href="#" className='flex flex-col'>
-                          <span className='text-base sm:text-xl font-semibold text-green-600 leading-tight'>mealawe™</span>
+                          <span className='text-base sm:text-xl font-semibold text-green-600 leading-tight'>mealpod</span>
                           <span className='text-xs text-green-400 hidden sm:block'>Khao Ghar Ka...</span>
                       </a>
                   </div>
