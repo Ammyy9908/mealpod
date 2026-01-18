@@ -18,9 +18,9 @@ function SubscriptionCard({ title = 'STUDENTS', image, onClick, className = '' }
               className='object-cover'
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
-            {/* Black Overlay - Visible on Mobile & Tablet */}
-            <div className='absolute inset-0 bg-black bg-opacity-25 lg:bg-opacity-0 md:bg-opacity-25 sm:bg-opacity-25 z-10 transition-opacity duration-300'></div>
-            {/* Title - Visible on Mobile & Tablet */}
+            {/* Black Overlay - Visible on Mobile & Tablet Only */}
+            <div className='absolute inset-0 bg-black bg-opacity-25 md:bg-opacity-25 sm:bg-opacity-25 lg:hidden z-10 transition-opacity duration-300'></div>
+            {/* Title - Visible on Mobile & Tablet Only */}
             <div className='absolute inset-0 flex items-center justify-center z-20 lg:hidden md:flex sm:flex'>
               <h3 className='text-white text-2xl md:text-3xl sm:text-2xl font-bold text-center px-4 drop-shadow-lg'>
                 {title}
