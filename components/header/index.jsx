@@ -14,7 +14,9 @@ function index() {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(isDevelopment)
   const [userProfile, setUserProfile] = useState(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const dropdownRef = useRef(null)
+  const mobileMenuRef = useRef(null)
   
   const isLoggedIn = status === 'authenticated' || isDevelopment
   const userInfo = session?.user
@@ -61,9 +63,12 @@ function index() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsUserDropdownOpen(false)
       }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setIsMobileMenuOpen(false)
+      }
     }
 
-    if (isUserDropdownOpen) {
+    if (isUserDropdownOpen || isMobileMenuOpen) {
       // Support both mouse and touch events for mobile compatibility
       document.addEventListener('mousedown', handleClickOutside)
       document.addEventListener('touchstart', handleClickOutside)
@@ -73,7 +78,19 @@ function index() {
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('touchstart', handleClickOutside)
     }
-  }, [isUserDropdownOpen, isDevelopment])
+  }, [isUserDropdownOpen, isMobileMenuOpen, isDevelopment])
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isMobileMenuOpen])
 
   // Fetch user profile when user is logged in
   useEffect(() => {
@@ -137,49 +154,69 @@ function index() {
               </div>
 
               <div className='header_right flex items-center gap-2 sm:gap-3 flex-shrink-0 relative' ref={dropdownRef}>
-                  {/* Meal Plan */}
-                  <a href="/meal-plan" className='flex flex-col items-center gap-1 px-2 py-1 hover:bg-gray-50 rounded transition-colors'>
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-green-600'>
-                          <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M7 8H13M7 11H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <circle cx="10" cy="14" r="1" fill="currentColor"/>
-                      </svg>
-                      <span className='text-xs sm:text-sm text-gray-700 font-medium'>Meal Plan</span>
-                  </a>
-                  
-                  {/* On Demand */}
-                  <a href="/on-demand" className='flex flex-col items-center gap-1 px-2 py-1 hover:bg-gray-50 rounded transition-colors'>
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-600'>
-                          <path d="M5 6L10 11L15 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M3 4H17M3 16H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
-                      </svg>
-                      <span className='text-xs sm:text-sm text-gray-700 font-medium'>On Demand</span>
-                  </a>
+                  {/* Desktop Action Items - Hidden on Mobile */}
+                  <div className='hidden sm:flex items-center gap-2 sm:gap-3'>
+                    {/* Meal Plan */}
+                    <a href="/meal-plan" className='flex flex-col items-center gap-1 px-2 py-1 hover:bg-gray-50 rounded transition-colors'>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-green-600'>
+                            <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M7 8H13M7 11H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <circle cx="10" cy="14" r="1" fill="currentColor"/>
+                        </svg>
+                        <span className='text-xs sm:text-sm text-gray-700 font-medium'>Meal Plan</span>
+                    </a>
+                    
+                    {/* On Demand */}
+                    <a href="/on-demand" className='flex flex-col items-center gap-1 px-2 py-1 hover:bg-gray-50 rounded transition-colors'>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-600'>
+                            <path d="M5 6L10 11L15 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M3 4H17M3 16H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+                        </svg>
+                        <span className='text-xs sm:text-sm text-gray-700 font-medium'>On Demand</span>
+                    </a>
 
-                  {/* Cart Button */}
-                  <button 
-                    className='flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation min-h-[44px] sm:min-h-0'
-                    aria-label="Cart"
+                    {/* Cart Button */}
+                    <button 
+                      className='flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation min-h-[44px] sm:min-h-0'
+                      aria-label="Cart"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='flex-shrink-0'>
+                            <path d="M3 5H17L16 15H4L3 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M7 7L7.5 9M12.5 9L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M8 12L9 13L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        <span className='text-xs sm:text-sm font-medium hidden sm:inline'>Cart</span>
+                    </button>
+                  </div>
+
+                  {/* Mobile Hamburger Menu Button */}
+                  <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className='sm:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation'
+                    aria-label="Menu"
                   >
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='flex-shrink-0'>
-                          <path d="M3 5H17L16 15H4L3 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M7 7L7.5 9M12.5 9L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M8 12L9 13L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    {isMobileMenuOpen ? (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span className='text-xs sm:text-sm font-medium hidden sm:inline'>Cart</span>
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
                   </button>
 
+                  {/* User Profile Button - Hidden on Mobile (shown in mobile menu) */}
                   {isLoggedIn ? (
                     <>
-                      {/* User Profile Button */}
                       <button 
                         onClick={() => {
                           if (!isDevelopment) {
                             setIsUserDropdownOpen(!isUserDropdownOpen)
                           }
                         }}
-                        className='flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-teal-700 hover:bg-teal-800 active:bg-teal-900 transition-colors touch-manipulation flex-shrink-0'
+                        className='hidden sm:flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-teal-700 hover:bg-teal-800 active:bg-teal-900 transition-colors touch-manipulation flex-shrink-0'
                         aria-label="User menu"
                       >
                         {userProfile?.picture || userInfo?.picture ? (
@@ -361,7 +398,7 @@ function index() {
                   ) : (
                     <button 
                       onClick={handleLoginClick}
-                      className='flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-teal-700 hover:bg-teal-800 active:bg-teal-900 transition-colors touch-manipulation flex-shrink-0'
+                      className='hidden sm:flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-teal-700 hover:bg-teal-800 active:bg-teal-900 transition-colors touch-manipulation flex-shrink-0'
                       aria-label="Login"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-white'>
@@ -373,6 +410,183 @@ function index() {
                 </div>
         </div>
     </div>
+
+    {/* Mobile Menu */}
+    {isMobileMenuOpen && (
+      <>
+        {/* Overlay */}
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-[55] sm:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+
+        {/* Mobile Menu Sidebar */}
+        <div
+          ref={mobileMenuRef}
+          className="fixed top-[73px] left-0 h-[calc(100vh-73px)] w-full sm:w-80 bg-white z-[60] sm:hidden shadow-xl overflow-y-auto overscroll-contain touch-pan-y"
+        >
+          {/* Mobile Menu Header */}
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
+            <h3 className="text-lg font-semibold text-gray-900">Menu</h3>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-2 -mr-2 active:opacity-70 touch-manipulation"
+              aria-label="Close menu"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+          {/* Mobile Menu Items */}
+          <div className="py-2">
+            {/* Meal Plan */}
+            <a
+              href="/meal-plan"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="w-full px-4 py-4 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px]"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-green-600 flex-shrink-0">
+                <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 8H13M7 11H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="10" cy="14" r="1" fill="currentColor"/>
+              </svg>
+              <span className="text-sm text-gray-700 font-medium">Meal Plan</span>
+            </a>
+
+            {/* On Demand */}
+            <a
+              href="/on-demand"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="w-full px-4 py-4 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px]"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-600 flex-shrink-0">
+                <path d="M5 6L10 11L15 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 4H17M3 16H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+              </svg>
+              <span className="text-sm text-gray-700 font-medium">On Demand</span>
+            </a>
+
+            {/* Cart */}
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="w-full px-4 py-4 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px]"
+              aria-label="Cart"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-600 flex-shrink-0">
+                <path d="M3 5H17L16 15H4L3 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 7L7.5 9M12.5 9L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8 12L9 13L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-sm text-gray-700 font-medium">Cart</span>
+            </button>
+
+            {/* Divider */}
+            <div className="border-t border-gray-100 my-2"></div>
+
+            {/* User Profile Section */}
+            {isLoggedIn ? (
+              <>
+                {/* User Info */}
+                <div className="px-4 py-3 flex items-center gap-3 border-b border-gray-100">
+                  <div className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center bg-gray-50 flex-shrink-0">
+                    {userProfile?.picture || userInfo?.picture ? (
+                      <img
+                        src={userProfile?.picture || userInfo.picture}
+                        alt={userProfile?.name || userInfo.name || 'User'}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400">
+                        <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M2 22C2 17.5817 5.58172 14 10 14C14.4183 14 18 17.5817 18 22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {userProfile?.phone || userProfile?.name || userInfo?.name || userInfo?.email?.split('@')[0] || 'User'}
+                    </p>
+                    {userProfile?.phone && (
+                      <p className="text-xs text-gray-500 truncate">{userProfile.phone}</p>
+                    )}
+                    {!userProfile?.phone && userInfo?.email && (
+                      <p className="text-xs text-gray-500 truncate">{userInfo.email}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* My Account */}
+                <Link
+                  href="/my-account/my-profile"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false)
+                    handleMenuClick('/my-account/my-profile')
+                  }}
+                  className="w-full px-4 py-4 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px]"
+                >
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-600 flex-shrink-0">
+                    <path d="M10 10C11.6569 10 13 8.65685 13 7C13 5.34315 11.6569 4 10 4C8.34315 4 7 5.34315 7 7C7 8.65685 8.34315 10 10 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M2 18C2 14.6863 5.58172 12 10 12C14.4183 12 18 14.6863 18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-sm text-gray-700 font-medium">My Account</span>
+                </Link>
+
+                {/* My Orders */}
+                <Link
+                  href="/my-account/my-orders"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false)
+                    handleMenuClick('/my-account/my-orders')
+                  }}
+                  className="w-full px-4 py-4 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px]"
+                >
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-600 flex-shrink-0">
+                    <path d="M3 5H17L16 15H4L3 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 7L7.5 9M12.5 9L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8 12L9 13L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-sm text-gray-700 font-medium">My Orders</span>
+                </Link>
+
+                {/* Logout */}
+                <div className="border-t border-gray-100 mt-1">
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false)
+                      handleLogout()
+                    }}
+                    className="w-full px-4 py-4 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px]"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-600 flex-shrink-0">
+                      <path d="M7 17H3C2.44772 17 2 16.5523 2 16V4C2 3.44772 2.44772 3 3 3H7M14 14L18 10M18 10L14 6M18 10H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="text-sm text-gray-700 font-medium">Logout</span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false)
+                  handleLoginClick()
+                }}
+                className="w-full px-4 py-4 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px]"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-600 flex-shrink-0">
+                  <path d="M10 10C11.6569 10 13 8.65685 13 7C13 5.34315 11.6569 4 10 4C8.34315 4 7 5.34315 7 7C7 8.65685 8.34315 10 10 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 18C2 14.6863 5.58172 12 10 12C14.4183 12 18 14.6863 18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="text-sm text-gray-700 font-medium">Login</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </>
+    )}
 
     {/* Login Modal - Mobile optimized */}
     {isLoginModalOpen && (
