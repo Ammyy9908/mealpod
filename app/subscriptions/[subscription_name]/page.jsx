@@ -157,11 +157,11 @@ function Page() {
                     <div className="relative h-full min-h-[300px] lg:min-h-[400px] flex items-center justify-center p-6">
                       <div className="relative z-10 w-full h-full flex items-center justify-center">
                         <Image
-                          src={plan.image || '/special_thali.png'}
+                          src={`/${plan.sku_id}.png`}
                           alt={plan.title}
-                          fill
+                          width={100}
+                          height={100}
                           className="object-contain"
-                          sizes="(max-width: 768px) 100vw, 400px"
                         />
                       </div>
 
