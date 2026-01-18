@@ -82,28 +82,26 @@ function Page() {
             {subscriptionPlans.map((plan) => (
               <div
                 key={plan.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 relative"
+                className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200"
               >
-                {/* Bestseller Badge */}
-                {plan.isBestseller && (
-                  <div className="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold z-30">
-                    BESTSELLER
-                  </div>
-                )}
-                
                 <div className="flex flex-col lg:flex-row">
                   {/* Left Side - Text Information */}
                   <div className="flex-1 p-6 lg:p-8">
-                    <div className="flex items-start gap-4">
-                      {/* Vegetarian Icon */}
-                      {plan.isVeg && (
-                        <div className="w-6 h-6 bg-green-600 rounded flex-shrink-0 mt-1">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
-                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" fill="currentColor"/>
-                            <path d="M9 12L11 14L15 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </div>
-                      )}
+                    <div className="flex items-start gap-3">
+                      {/* Vegetarian Icon with Bestseller */}
+                      <div className="flex flex-col items-start gap-2 flex-shrink-0">
+                        {plan.isVeg && (
+                          <div className="w-6 h-6 bg-green-600 rounded flex items-center justify-center">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+                              <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" fill="currentColor"/>
+                              <path d="M9 12L11 14L15 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                        )}
+                        {plan.isBestseller && (
+                          <span className="text-xs font-semibold text-gray-700">Bestseller</span>
+                        )}
+                      </div>
 
                       <div className="flex-1">
                         {/* Title */}
@@ -127,10 +125,10 @@ function Page() {
                         </div>
 
                         {/* Description */}
-                        <p className="text-gray-700 text-sm sm:text-base mb-3">
+                        <p className="text-gray-700 text-sm sm:text-base mb-2">
                           {plan.description}
                         </p>
-                        <button className="text-gray-500 text-sm hover:text-gray-700 mb-4">
+                        <button className="text-green-600 text-sm font-medium hover:text-green-700 mb-4">
                           read more
                         </button>
 
@@ -150,8 +148,10 @@ function Page() {
 
                   {/* Right Side - Image with Overlay */}
                   <div className="lg:w-80 xl:w-96 relative">
-                    {/* Diagonal Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-blue-800 opacity-90"></div>
+                    {/* Diagonal Background - Orange top-left, Dark Blue bottom-right */}
+                    <div className="absolute inset-0" style={{
+                      background: 'linear-gradient(to bottom right, #fb923c 0%, #fb923c 50%, #1e3a8a 50%, #1e3a8a 100%)'
+                    }}></div>
                     
                     {/* Image Container */}
                     <div className="relative h-full min-h-[300px] lg:min-h-[400px] flex items-center justify-center p-6">
@@ -165,25 +165,25 @@ function Page() {
                         />
                       </div>
 
-                      {/* Per Meal Price Overlay */}
-                      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 z-20">
+                      {/* Per Meal Price Overlay - Yellow Banner */}
+                      <div className="absolute top-4 right-4 bg-yellow-400 rounded-lg px-3 py-2 z-20 shadow-md">
                         <div className="text-right">
                           <div className="flex items-baseline gap-1 justify-end">
-                            <span className="text-orange-600 font-bold text-lg">
-                              ₹{plan.perMealPrice}
+                            <span className="text-gray-900 font-bold text-base">
+                              ₹ {plan.perMealPrice}
                             </span>
-                            <span className="text-gray-400 text-sm line-through">
-                              ₹{plan.perMealOriginalPrice}
+                            <span className="text-gray-600 text-sm line-through">
+                              ₹ {plan.perMealOriginalPrice}
                             </span>
                           </div>
-                          <p className="text-gray-600 text-xs mt-1">Per Meal</p>
+                          <p className="text-gray-700 text-xs mt-0.5 font-medium">Per Meal</p>
                         </div>
                       </div>
 
                       {/* ADD + Button */}
                       <button
                         onClick={() => handleAddToCart(plan)}
-                        className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold text-base shadow-lg transition-colors touch-manipulation"
+                        className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20 bg-green-600 hover:bg-green-700 border-2 border-white text-white px-8 py-3 rounded-lg font-semibold text-base shadow-lg transition-colors touch-manipulation"
                       >
                         ADD +
                       </button>
