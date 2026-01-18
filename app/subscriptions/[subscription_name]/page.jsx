@@ -14,76 +14,54 @@ function Page() {
   useEffect(() => {
     const fetchSubscriptionPlans = async () => {
       try {
-        // Fetch all subscriptions and filter by name
-        const response = await fetch('/api/subscriptions')
+        // Fetch subscriptions by sku_id
+        const response = await fetch(`/api/items?sku=${subscriptionName}`)
         if (response.ok) {
           const data = await response.json()
-          const products = data.products || []
+          console.log('Subscription data:', data)
           
-          // Filter products that match the subscription name
-          // For now, we'll create sample plans based on the subscription type
-          // In a real app, this would come from the API
-          const plans = generateSubscriptionPlans(subscriptionName)
-          setSubscriptionPlans(plans)
+          // Map API response to component structure
+          if (data.subscriptions && Array.isArray(data.subscriptions)) {
+            const mappedPlans = data.subscriptions.map((subscription) => ({
+              id: subscription._id,
+              skuId: subscription.sku_id,
+              planId: subscription.plan_id,
+              title: subscription.display_name,
+              currentPrice: subscription.pricing?.price || 0,
+              originalPrice: subscription.pricing?.original_price || 0,
+              discount: subscription.pricing?.discount_percentage || 0,
+              perMealPrice: subscription.pricing?.price_per_meal || 0,
+              perMealOriginalPrice: subscription.pricing?.original_price 
+                ? Math.round(subscription.pricing.original_price / (subscription.plan?.total_meals || 1))
+                : 0,
+              description: '3 Chapati/Roti, 2 Veg Curry/Dry, 1 Dal, 1 Steamed Rice, Cut Salad, Sweet',
+              planDuration: `${subscription.plan?.duration_days || 0}-Day Plan (${subscription.plan?.meals_per_day || 1} meal/day)`,
+              image: `/special_thali.png`, // Default image, can be updated from API if available
+              isVeg: subscription.is_veg,
+              isBestseller: subscription.is_bestseller,
+              status: subscription.status,
+            }))
+            setSubscriptionPlans(mappedPlans)
+          }
+        } else {
+          console.error('Failed to fetch subscriptions')
         }
       } catch (error) {
-        console.error('Error fetching subscriptions:', error)
+        console.error('Error fetching items:', error)
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchSubscriptionPlans()
+    if (subscriptionName) {
+      fetchSubscriptionPlans()
+    }
   }, [subscriptionName])
-
-  const generateSubscriptionPlans = (name) => {
-    // Sample data structure - in production, this would come from the API
-    const basePlans = [
-      {
-        id: 1,
-        title: 'Special Thali - Monthly',
-        currentPrice: 3860,
-        originalPrice: 5000,
-        discount: 23,
-        perMealPrice: 193,
-        perMealOriginalPrice: 250,
-        description: '3 Chapati/Roti, 2 Veg Curry/Dry, 1 Dal, 1 Steamed Rice, Cut Salad, Sweet',
-        planDuration: '20-Day Plan (1 meal/day)',
-        image: '/special_thali.png'
-      },
-      {
-        id: 2,
-        title: 'Special Thali - 3 Months Plan',
-        currentPrice: 11480,
-        originalPrice: 15000,
-        discount: 23,
-        perMealPrice: 191,
-        perMealOriginalPrice: 250,
-        description: '3 Chapati/Roti, 2 Veg Curry/Dry, 1 Dal, 1 Steamed Rice, Cut Salad, Sweet',
-        planDuration: '60-Day Plan (1 meal/day)',
-        image: '/special_thali.png'
-      },
-      {
-        id: 3,
-        title: 'Special Thali - Biweekly',
-        currentPrice: 2030,
-        originalPrice: 2500,
-        discount: 19,
-        perMealPrice: 203,
-        perMealOriginalPrice: 250,
-        description: '3 Chapati/Roti, 2 Veg Curry/Dry, 1 Dal, 1 Steamed Rice, Cut Salad, Sweet',
-        planDuration: '10-Day Plan (1 meal/day)',
-        image: '/special_thali.png'
-      }
-    ]
-    return basePlans
-  }
 
   const handleAddToCart = (plan) => {
     // TODO: Implement add to cart functionality
     console.log('Add to cart:', plan)
   }
-
   return (
     <>
       <Header />
@@ -92,24 +70,40 @@ function Page() {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-gray-500">Loading...</div>
           </div>
+        ) : subscriptionPlans.length === 0 ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <p className="text-gray-500 text-lg mb-2">No subscription plans found</p>
+              <p className="text-gray-400 text-sm">Please try again later</p>
+            </div>
+          </div>
         ) : (
           <div className="space-y-6">
             {subscriptionPlans.map((plan) => (
               <div
                 key={plan.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200"
+                className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 relative"
               >
+                {/* Bestseller Badge */}
+                {plan.isBestseller && (
+                  <div className="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold z-30">
+                    BESTSELLER
+                  </div>
+                )}
+                
                 <div className="flex flex-col lg:flex-row">
                   {/* Left Side - Text Information */}
                   <div className="flex-1 p-6 lg:p-8">
                     <div className="flex items-start gap-4">
                       {/* Vegetarian Icon */}
-                      <div className="w-6 h-6 bg-green-600 rounded flex-shrink-0 mt-1">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
-                          <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" fill="currentColor"/>
-                          <path d="M9 12L11 14L15 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
+                      {plan.isVeg && (
+                        <div className="w-6 h-6 bg-green-600 rounded flex-shrink-0 mt-1">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" fill="currentColor"/>
+                            <path d="M9 12L11 14L15 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                      )}
 
                       <div className="flex-1">
                         {/* Title */}
