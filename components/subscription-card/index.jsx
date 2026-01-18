@@ -3,7 +3,7 @@ import React from 'react'
 function SubscriptionCard({ title = 'STUDENTS', image, onClick, className = '' }) {
   return (
     <div 
-      className={`flex flex-col overflow-hidden rounded-lg bg-white cursor-pointer hover:shadow-lg transition-all duration-300 ${className}`}
+      className={`flex flex-col overflow-hidden rounded-lg  cursor-pointer hover:shadow-lg transition-all duration-300 ${className}`}
       onClick={onClick}
     >
       {/* Image Section - Upper 2/3 */}
@@ -31,13 +31,6 @@ function SubscriptionCard({ title = 'STUDENTS', image, onClick, className = '' }
             </svg>
           </div>
         )}
-      </div>
-      
-      {/* Text Bar Section - Bottom 1/3 */}
-      <div className='flex-[1] bg-green-600 py-4 flex items-center justify-center min-h-[60px]'>
-        <span className='text-white text-xl font-bold uppercase tracking-wide'>
-          {title}
-        </span>
       </div>
     </div>
   )
