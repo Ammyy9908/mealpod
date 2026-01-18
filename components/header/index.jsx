@@ -7,9 +7,6 @@ function index() {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const [addresses, setAddresses] = useState([])
-  const [selectedAddress, setSelectedAddress] = useState(null)
-  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false)
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
   const [userProfile, setUserProfile] = useState(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(false)
@@ -17,9 +14,6 @@ function index() {
   
   const isLoggedIn = status === 'authenticated'
   const userInfo = session?.user
-  // Check if we're on the landing page (/home or root /)
-  // Normalize pathname by removing trailing slash for comparison
-  const normalizedPath = pathname?.replace(/\/$/, '') || ''
   
 
 
@@ -49,39 +43,6 @@ function index() {
     }
   }, [isLoggedIn])
 
-  // Fetch addresses for logged in user
-  const fetchAddresses = useCallback(async () => {
-    if (!isLoggedIn) return
-    
-    setIsLoadingAddresses(true)
-    try {
-      const response = await fetch('/api/user/addresses', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const userAddresses = data.addresses || data || []
-        setAddresses(userAddresses)
-        
-        // Set first address as selected if available
-        if (userAddresses.length > 0) {
-          setSelectedAddress(prev => prev || userAddresses[0])
-        }
-      } else {
-        console.error('Failed to fetch addresses')
-        setAddresses([])
-      }
-    } catch (error) {
-      console.error('Error fetching addresses:', error)
-      setAddresses([])
-    } finally {
-      setIsLoadingAddresses(false)
-    }
-  }, [isLoggedIn])
 
   const handleCloseLoginModal = useCallback(() => {
     setIsLoginModalOpen(false)
@@ -107,17 +68,14 @@ function index() {
     }
   }, [isUserDropdownOpen])
 
-  // Fetch user profile and addresses when user is logged in
+  // Fetch user profile when user is logged in
   useEffect(() => {
     if (isLoggedIn) {
       fetchUserProfile()
-      fetchAddresses()
     } else {
       setUserProfile(null)
-      setAddresses([])
-      setSelectedAddress(null)
     }
-  }, [isLoggedIn, fetchUserProfile, fetchAddresses])
+  }, [isLoggedIn, fetchUserProfile])
 
   const handleGoogleSignIn = async () => {
     try {
@@ -136,19 +94,10 @@ function index() {
     setIsLoginModalOpen(true)
   }
 
-
-  const handleAddNewAddress = () => {
-    // Open add address modal or navigate to address page
-    // For now, just show an alert
-    alert('Add new address functionality - to be implemented')
-  }
-
   const handleLogout = async () => {
     try {
       setIsUserDropdownOpen(false)
       await signOut({ callbackUrl: window.location.href })
-      setAddresses([])
-      setSelectedAddress(null)
     } catch (error) {
       console.error('Error during logout:', error)
     }
@@ -158,57 +107,75 @@ function index() {
     setIsUserDropdownOpen(false)
   }
 
-  const getDisplayAddress = () => {
-    if (!isLoggedIn) {
-      return 'Login to view address'
-    }
-    
-    if (isLoadingAddresses) {
-      return 'Loading addresses...'
-    }
-    
-    if (addresses.length === 0) {
-      return 'No addresses found'
-    }
-    
-    if (selectedAddress) {
-      const address = selectedAddress.address || selectedAddress
-      return address.length > 40 ? address.substring(0, 40) + '...' : address
-    }
-    
-    return 'Select an address'
-  }
-
   return (
     <>
       <div className={`bg-white border-b border-gray-200 sticky top-0 z-40 safe-area-top`}>
-          <div className='header_wrapper w-full sm:w-[90%] m-auto flex flex-row justify-between items-center py-2.5 sm:py-4 px-4 sm:px-0 gap-2 sm:gap-0'>
+          <div className='header_wrapper w-full sm:w-[90%] m-auto flex flex-row justify-between items-center py-2.5 sm:py-4 px-4 sm:px-0 gap-2 sm:gap-4'>
               {/* Left Section - Logo */}
-              <div className='header_left flex flex-row items-center gap-3 sm:gap-8 flex-shrink-0'>
+              <div className='header_left flex flex-row items-center gap-2 sm:gap-3 flex-shrink-0'>
                   {/* Logo Section */}
                   <div className='flex items-center gap-2'>
-                      {/* Logo graphic */}
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className='flex-shrink-0'>
-                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="#22c55e"/>
-                          <circle cx="12" cy="12" r="3" fill="#22c55e"/>
-                      </svg>
-                      <a href="#" className='flex flex-col'>
+                      <a href="/" className='flex flex-col relative'>
                           <span className='text-base sm:text-xl font-semibold text-green-600 leading-tight'>mealpod</span>
                           <span className='text-xs text-green-400 hidden sm:block'>Khao Ghar Ka...</span>
                       </a>
                   </div>
               </div>
 
-              <div className='header_right flex items-center gap-3 flex-shrink-0 relative' ref={dropdownRef}>
+              <div className='header_right flex items-center gap-2 sm:gap-3 flex-shrink-0 relative' ref={dropdownRef}>
+                  {/* Meal Plan */}
+                  <a href="/meal-plan" className='flex flex-col items-center gap-1 px-2 py-1 hover:bg-gray-50 rounded transition-colors'>
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-green-600'>
+                          <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M7 8H13M7 11H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <circle cx="10" cy="14" r="1" fill="currentColor"/>
+                      </svg>
+                      <span className='text-xs sm:text-sm text-gray-700 font-medium'>Meal Plan</span>
+                  </a>
+                  
+                  {/* On Demand */}
+                  <a href="/on-demand" className='flex flex-col items-center gap-1 px-2 py-1 hover:bg-gray-50 rounded transition-colors'>
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-gray-600'>
+                          <path d="M5 6L10 11L15 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M3 4H17M3 16H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+                      </svg>
+                      <span className='text-xs sm:text-sm text-gray-700 font-medium'>On Demand</span>
+                  </a>
+
+                  {/* Cart Button */}
+                  <button 
+                    className='flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation min-h-[44px] sm:min-h-0'
+                    aria-label="Cart"
+                  >
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='flex-shrink-0'>
+                          <path d="M3 5H17L16 15H4L3 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M7 7L7.5 9M12.5 9L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M8 12L9 13L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className='text-xs sm:text-sm font-medium hidden sm:inline'>Cart</span>
+                  </button>
+
                   {isLoggedIn ? (
                     <>
-                      {/* Hi User Button */}
+                      {/* User Profile Button */}
                       <button 
                         onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                        className='flex items-center justify-center px-4 py-2 rounded-lg border border-black text-black hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation min-h-[44px] sm:min-h-0 font-medium text-sm'
+                        className='flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-teal-700 hover:bg-teal-800 active:bg-teal-900 transition-colors touch-manipulation flex-shrink-0'
                         aria-label="User menu"
                       >
-                        Hi User
+                        {userProfile?.picture || userInfo?.picture ? (
+                          <img 
+                            src={userProfile?.picture || userInfo.picture} 
+                            alt={userProfile?.name || userInfo.name || 'User'} 
+                            className='w-full h-full rounded-full object-cover'
+                          />
+                        ) : (
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-white'>
+                            <path d="M10 10C11.6569 10 13 8.65685 13 7C13 5.34315 11.6569 4 10 4C8.34315 4 7 5.34315 7 7C7 8.65685 8.34315 10 10 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M2 18C2 14.6863 5.58172 12 10 12C14.4183 12 18 14.6863 18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        )}
                       </button>
                       {/* User Dropdown Menu for Landing Page */}
                       {isUserDropdownOpen && (
@@ -351,26 +318,17 @@ function index() {
                           </div>
                         </div>
                       )}
-                      {/* Logout Button */}
-                      <button 
-                        onClick={handleLogout}
-                        className='flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-black text-black hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation min-h-[44px] sm:min-h-0 font-medium text-sm'
-                        aria-label="Logout"
-                      >
-                        Logout
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className='flex-shrink-0'>
-                          <path d="M11 12L14 8M14 8L11 4M14 8H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M5 2H3C2.44772 2 2 2.44772 2 3V13C2 13.5523 2.44772 14 3 14H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </button>
                     </>
                   ) : (
                     <button 
                       onClick={handleLoginClick}
-                      className='flex items-center justify-center px-4 py-2 rounded-lg border border-black text-black hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation min-h-[44px] sm:min-h-0 font-medium text-sm'
+                      className='flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-teal-700 hover:bg-teal-800 active:bg-teal-900 transition-colors touch-manipulation flex-shrink-0'
                       aria-label="Login"
                     >
-                      Login
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className='text-white'>
+                        <path d="M10 10C11.6569 10 13 8.65685 13 7C13 5.34315 11.6569 4 10 4C8.34315 4 7 5.34315 7 7C7 8.65685 8.34315 10 10 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M2 18C2 14.6863 5.58172 12 10 12C14.4183 12 18 14.6863 18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </button>
                   )}
                 </div>
