@@ -7,12 +7,14 @@ function index() {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
+  // Always show dropdown in development for local testing
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(isDevelopment)
   const [userProfile, setUserProfile] = useState(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(false)
   const dropdownRef = useRef(null)
   
-  const isLoggedIn = status === 'authenticated'
+  const isLoggedIn = status === 'authenticated' || isDevelopment
   const userInfo = session?.user
   
 
@@ -49,7 +51,10 @@ function index() {
   }, [])
 
   // Close dropdown when clicking outside (works for both mouse and touch)
+  // Skip in development mode to keep dropdown always visible
   useEffect(() => {
+    if (isDevelopment) return // Don't close dropdown in development
+    
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsUserDropdownOpen(false)
@@ -66,7 +71,7 @@ function index() {
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('touchstart', handleClickOutside)
     }
-  }, [isUserDropdownOpen])
+  }, [isUserDropdownOpen, isDevelopment])
 
   // Fetch user profile when user is logged in
   useEffect(() => {
@@ -96,7 +101,9 @@ function index() {
 
   const handleLogout = async () => {
     try {
-      setIsUserDropdownOpen(false)
+      if (!isDevelopment) {
+        setIsUserDropdownOpen(false)
+      }
       await signOut({ callbackUrl: window.location.href })
     } catch (error) {
       console.error('Error during logout:', error)
@@ -104,7 +111,9 @@ function index() {
   }
 
   const handleMenuClick = () => {
-    setIsUserDropdownOpen(false)
+    if (!isDevelopment) {
+      setIsUserDropdownOpen(false)
+    }
   }
 
   return (
@@ -160,7 +169,11 @@ function index() {
                     <>
                       {/* User Profile Button */}
                       <button 
-                        onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                        onClick={() => {
+                          if (!isDevelopment) {
+                            setIsUserDropdownOpen(!isUserDropdownOpen)
+                          }
+                        }}
                         className='flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-teal-700 hover:bg-teal-800 active:bg-teal-900 transition-colors touch-manipulation flex-shrink-0'
                         aria-label="User menu"
                       >
@@ -179,12 +192,16 @@ function index() {
                       </button>
                       {/* User Dropdown Menu for Landing Page */}
                       {isUserDropdownOpen && (
-                        <div className='fixed sm:absolute inset-0 sm:inset-auto sm:right-0 sm:mt-2 sm:w-80 w-full sm:max-h-[90vh] sm:max-w-[90vw] bg-white sm:rounded-lg shadow-xl border border-gray-200 z-50 overflow-y-auto overscroll-contain touch-pan-y'>
+                        <div className='fixed sm:absolute inset-0 sm:inset-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 w-full sm:max-h-[90vh] sm:max-w-[90vw] bg-white sm:rounded-lg shadow-xl border border-gray-200 z-50 overflow-y-auto overscroll-contain touch-pan-y'>
                           {/* Mobile Header with Close Button */}
                           <div className='sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sm:hidden z-10'>
                             <h3 className='text-lg font-semibold text-gray-900'>Menu</h3>
                             <button
-                              onClick={() => setIsUserDropdownOpen(false)}
+                              onClick={() => {
+                                if (!isDevelopment) {
+                                  setIsUserDropdownOpen(false)
+                                }
+                              }}
                               className='p-2 -mr-2 active:opacity-70 touch-manipulation'
                               aria-label="Close menu"
                             >
