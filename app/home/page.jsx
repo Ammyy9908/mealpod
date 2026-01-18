@@ -1,13 +1,13 @@
 'use client'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import Header from '../../components/header/index.jsx'
 import Footer from '../../components/footer/index.jsx'
 import Container from '../../components/container/index.jsx'
 import SubscriptionCard from '../../components/subscription-card/index.jsx'
 import MealCard from '../../components/meal-card/index.jsx'
 import StatCard from '../../components/stat-card/index.jsx'
-import { useState, useEffect } from 'react';
 
 function page() {
   const router = useRouter()
@@ -43,13 +43,13 @@ function page() {
           <h3 className='text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3'>Specially Designed Meal Plans for You</h3>
           <p className='text-gray-500 text-sm sm:text-base mb-6 sm:mb-8'>Choose from our specially designed meal plans to suit your needs and preferences.</p>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
-            <SubscriptionCard image="/students.png" />
-            <SubscriptionCard image="/corporate.png" />
-            <SubscriptionCard image="/elder.png" />
+            <SubscriptionCard image="/students.png" title='STUDENTS'/>
+            <SubscriptionCard image="/corporate.png" title='CORPORATE'/>
+            <SubscriptionCard image="/elder.png" title='ELDERLY'/>
           </div>
          </section>
          <section className='mt-12 sm:mt-16'>
-          <h3 className='text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3'>Meal of the Day</h3>
+          <h3 className='text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3'>Meal Subscriptions</h3>
           <p className='text-gray-500 text-sm sm:text-base mb-6 sm:mb-8'>Choose from our specially designed meal plans to suit your needs and preferences.</p>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
            {subscriptions.map((subscription) => (
@@ -72,6 +72,19 @@ function page() {
           </div>
          </section>
         </Container>
+        <div className="w-full mt-12 sm:mt-16 lg:mt-20">
+          <div className="relative w-full h-auto">
+            <Image 
+              src="/illustration_delivery.jpg" 
+              alt="Live Pune - Delivery Service" 
+              width={1920} 
+              height={600}
+              className="w-full h-auto object-cover"
+              priority
+              sizes="100vw"
+            />
+          </div>
+        </div>
         <Footer />
     </>
   )
