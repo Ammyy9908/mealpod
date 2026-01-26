@@ -3,11 +3,14 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useSelector } from "react-redux";
+import { selectCartCount } from "../../app/store/cartSelector";
 
 function index() {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const router = useRouter()
+  const cartCount = useSelector(selectCartCount)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   // Always show dropdown in development for local testing
   const isDevelopment = false;
@@ -186,7 +189,7 @@ function index() {
                             <path d="M7 7L7.5 9M12.5 9L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                             <path d="M8 12L9 13L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <span className='text-xs sm:text-sm font-medium hidden sm:inline'>Cart</span>
+                        <span className='text-xs sm:text-sm font-medium hidden sm:inline'>Cart {cartCount}</span>
                     </button>
                   </div>
 
