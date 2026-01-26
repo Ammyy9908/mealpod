@@ -14,7 +14,7 @@ export default function Home() {
      <Carousel />
      <LocationsImpact />
      <WhoWeServe />
-     <ReasonsToLove />
+     {/* <ReasonsToLove /> */}
      <FlexibleMealPlans />
      <section>
       <h1>Welcome to Mealawe</h1>

@@ -7,6 +7,8 @@ import SubscriptionPlanCard from '@/components/subscription-plan-card/index.jsx'
 import PromotionalCarousel from '@/components/promotional-carousel/index.jsx'
 import PhotoGallery from '@/components/photo-gallery/index.jsx'
 import WeeklyMenu from '@/components/weekly-menu/index.jsx'
+import { useDispatch, useSelector } from "react-redux";
+import { setSubscription } from "../../store/cartSlice";
 
 // Placeholder data for local development
 const getPlaceholderData = (skuId = 'special_thali') => {
@@ -60,6 +62,8 @@ const getPlaceholderData = (skuId = 'special_thali') => {
 }
 
 function Page() {
+  const dispatch = useDispatch();
+const cart = useSelector((state) => state.cart);
   const params = useParams()
   const subscriptionName = params?.subscription_name
   const [subscriptionPlans, setSubscriptionPlans] = useState([])
@@ -128,7 +132,12 @@ function Page() {
 
   const handleAddToCart = (plan) => {
     // TODO: Implement add to cart functionality
-    console.log('Add to cart:', plan)
+    if (!plan?.id) {
+      console.error("Invalid plan object:", plan);
+      return;
+    }
+  
+    dispatch(setSubscription(plan.id));
   }
 
   const handleViewGallery = () => {
