@@ -19,10 +19,14 @@ const handler = NextAuth({
       }
       return session
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger }) {
       // Persist the OAuth access_token to the token right after signin
       if (account) {
         token.accessToken = account.access_token
+      }
+      // Store backend access_token if available
+      if (token.backendAccessToken) {
+        // This will be set from the signIn callback
       }
       return token
     },
@@ -60,6 +64,22 @@ const handler = NextAuth({
           } else {
             const data = await response.json()
             console.log('User profile created/updated:', data)
+            
+            // Save access_token to cookie if available
+            if (data.access_token) {
+              // Store in JWT token to be accessible later
+              // We'll set the cookie in a separate API route or middleware
+              // For now, store it in the token
+              const { cookies } = await import('next/headers')
+              const cookieStore = await cookies()
+              cookieStore.set('access_token', data.access_token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 60 * 60 * 24 * 7, // 7 days
+                path: '/',
+              })
+            }
           }
         } catch (error) {
           console.error('Error creating/updating user profile:', error)
