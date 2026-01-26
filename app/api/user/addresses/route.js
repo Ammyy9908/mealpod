@@ -12,12 +12,20 @@ export async function GET(request) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get access_token from cookies
+    const cookieStore = await cookies()
+    const accessToken = cookieStore.get('access_token')?.value
+
+    if (!accessToken) {
+      return Response.json({ error: 'Access token not found' }, { status: 401 })
+    }
+
     // Call your backend API to get user addresses
-    const response = await fetch(`${BACKEND_API_URL}/user/addresses`, {
+    const response = await fetch(`${BACKEND_API_URL}/address`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.user.id}`,
+        'Authorization': `Bearer ${accessToken}`,
       },
     })
 
@@ -95,6 +103,14 @@ export async function PUT(request) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get access_token from cookies
+    const cookieStore = await cookies()
+    const accessToken = cookieStore.get('access_token')?.value
+
+    if (!accessToken) {
+      return Response.json({ error: 'Access token not found' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { addressId, ...addressData } = body
 
@@ -106,11 +122,11 @@ export async function PUT(request) {
     }
 
     // Call your backend API to update address
-    const response = await fetch(`${BACKEND_API_URL}/user/addresses/${addressId}`, {
-      method: 'PUT',
+    const response = await fetch(`${BACKEND_API_URL}/address/${addressId}`, {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.user.id}`,
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify(addressData),
     })
@@ -142,6 +158,14 @@ export async function DELETE(request) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get access_token from cookies
+    const cookieStore = await cookies()
+    const accessToken = cookieStore.get('access_token')?.value
+
+    if (!accessToken) {
+      return Response.json({ error: 'Access token not found' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const addressId = searchParams.get('addressId')
 
@@ -153,11 +177,11 @@ export async function DELETE(request) {
     }
 
     // Call your backend API to delete address
-    const response = await fetch(`${BACKEND_API_URL}/user/addresses/${addressId}`, {
+    const response = await fetch(`${BACKEND_API_URL}/address/${addressId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.user.id}`,
+        'Authorization': `Bearer ${accessToken}`,
       },
     })
 

@@ -30,12 +30,23 @@ function Page() {
             headers: {
               'Content-Type': 'application/json',
             },
+            credentials: 'include',
           })
 
           if (response.ok) {
             const data = await response.json()
             // Handle both array and object with addresses property
             setAddresses(Array.isArray(data) ? data : (data.addresses || []))
+          } else {
+            // Handle different error status codes
+            if (response.status === 404) {
+              console.error('Addresses API endpoint not found (404)')
+            } else if (response.status === 401) {
+              console.error('Unauthorized - access token not found or invalid')
+            } else {
+              const errorData = await response.json().catch(() => ({}))
+              console.error('Failed to fetch addresses:', errorData.message || `Status: ${response.status}`)
+            }
           }
         } catch (error) {
           console.error('Error fetching addresses:', error)
@@ -73,6 +84,7 @@ function Page() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       })
 
       if (response.ok) {
