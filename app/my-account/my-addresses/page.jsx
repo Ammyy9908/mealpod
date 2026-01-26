@@ -9,6 +9,17 @@ function Page() {
   const [addresses, setAddresses] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [formData, setFormData] = useState({
+    address: '',
+    doorFlatNo: '',
+    addressLine2: '',
+    city: '',
+    pincode: '',
+    state: '',
+    addressType: 'home'
+  })
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -38,6 +49,18 @@ function Page() {
 
     fetchAddresses()
   }, [status])
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isAddAddressModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isAddAddressModalOpen])
 
   const handleDelete = async (addressId) => {
     if (!confirm('Are you sure you want to delete this address?')) {
@@ -80,6 +103,106 @@ function Page() {
     }
     
     return formatted
+  }
+
+  // Indian states list
+  const indianStates = [
+    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
+    'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
+    'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
+    'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
+    'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Andaman and Nicobar Islands',
+    'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 'Delhi',
+    'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
+  ]
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleSaveAddress = async () => {
+    // Validate required fields
+    if (!formData.address.trim() || !formData.city.trim() || !formData.pincode.trim() || !formData.state.trim() || !formData.addressType) {
+      alert('Please fill in all required fields')
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      // Build address_line_1 with door/flat number if provided
+      let addressLine1 = formData.address.trim()
+      if (formData.doorFlatNo.trim()) {
+        addressLine1 = `${formData.doorFlatNo.trim()}, ${addressLine1}`
+      }
+
+      // Prepare address data for backend
+      const addressData = {
+        address: addressLine1,
+        addressLine2: formData.addressLine2.trim() || '',
+        city: formData.city.trim(),
+        state: formData.state.trim(),
+        pincode: formData.pincode.trim(),
+        addressType: formData.addressType,
+        country: 'India' // Default to India
+      }
+
+      const response = await fetch('/api/user/addresses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(addressData),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Add the new address to the list
+        const newAddress = data.address || data
+        setAddresses(prev => [...prev, newAddress])
+        
+        // Close modal and reset form
+        setIsAddAddressModalOpen(false)
+        setFormData({
+          address: '',
+          doorFlatNo: '',
+          addressLine2: '',
+          city: '',
+          pincode: '',
+          state: '',
+          addressType: 'home'
+        })
+        
+        // Show success message
+        alert('Address saved successfully!')
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        alert(errorData.message || 'Failed to save address. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error saving address:', error)
+      alert('An error occurred while saving the address. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCloseModal = () => {
+    setIsAddAddressModalOpen(false)
+    setFormData({
+      address: '',
+      doorFlatNo: '',
+      addressLine2: '',
+      city: '',
+      pincode: '',
+      state: '',
+      addressType: 'home'
+    })
   }
 
   const getAddressTypeIcon = (type) => {
@@ -143,12 +266,24 @@ function Page() {
                 {addresses.length === 0 ? (
                   <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                     <p className="text-gray-500 mb-4">No addresses found.</p>
-                    <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <button 
+                      onClick={() => setIsAddAddressModalOpen(true)}
+                      className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    >
                       Add New Address
                     </button>
                   </div>
                 ) : (
-                  addresses.map((address) => (
+                  <>
+                    <div className="mb-4">
+                      <button 
+                        onClick={() => setIsAddAddressModalOpen(true)}
+                        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      >
+                        Add New Address
+                      </button>
+                    </div>
+                    {addresses.map((address) => (
                     <div
                       key={address.id || address._id}
                       className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
@@ -187,13 +322,213 @@ function Page() {
                         </button>
                       </div>
                     </div>
-                  ))
+                    ))}
+                  </>
                 )}
               </div>
             </div>
           )}
         </main>
       </div>
+
+      {/* Add Address Modal */}
+      {isAddAddressModalOpen && (
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-[70] transition-opacity"
+            onClick={handleCloseModal}
+            aria-hidden="true"
+          />
+
+          {/* Modal */}
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+                <h2 className="text-xl font-semibold text-gray-900">Set Location</h2>
+                <button
+                  onClick={handleCloseModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                  aria-label="Close modal"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 space-y-6">
+                {/* Address Text Area */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={formData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    placeholder="Enter your full address"
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                    required
+                  />
+                </div>
+
+                {/* Door/Flat No */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Door / Flat No
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.doorFlatNo}
+                    onChange={(e) => handleInputChange('doorFlatNo', e.target.value)}
+                    placeholder="e.g., B603"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Address Line 2 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Society / Building / Landmark
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.addressLine2}
+                    onChange={(e) => handleInputChange('addressLine2', e.target.value)}
+                    placeholder="e.g., Sollanna Society"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* City and Pincode Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* City */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      City <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.city}
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      placeholder="e.g., Pune"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  {/* Pincode */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Pincode <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.pincode}
+                      onChange={(e) => handleInputChange('pincode', e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="e.g., 411004"
+                      maxLength={6}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* State */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    State <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.state}
+                    onChange={(e) => handleInputChange('state', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="">Select State</option>
+                    {indianStates.map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Address Type Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Address Type <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex gap-4">
+                    {/* Home */}
+                    <button
+                      type="button"
+                      onClick={() => handleInputChange('addressType', 'home')}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-colors ${
+                        formData.addressType === 'home'
+                          ? 'border-green-600 bg-green-50 text-green-700'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                      }`}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 10L10 3L17 10M4 9V16C4 16.5523 4.44772 17 5 17H8V13C8 12.4477 8.44772 12 9 12H11C11.5523 12 12 12.4477 12 13V17H15C15.5523 17 16 16.5523 16 16V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="font-medium">Home</span>
+                    </button>
+
+                    {/* Work */}
+                    <button
+                      type="button"
+                      onClick={() => handleInputChange('addressType', 'work')}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-colors ${
+                        formData.addressType === 'work'
+                          ? 'border-green-600 bg-green-50 text-green-700'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                      }`}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="5" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M7 9H13M7 13H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="font-medium">Work</span>
+                    </button>
+
+                    {/* Other */}
+                    <button
+                      type="button"
+                      onClick={() => handleInputChange('addressType', 'other')}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-colors ${
+                        formData.addressType === 'other'
+                          ? 'border-green-600 bg-green-50 text-green-700'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                      }`}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 2C7.23858 2 5 4.23858 5 7C5 9.76142 7.23858 12 10 12C12.7614 12 15 9.76142 15 7C15 4.23858 12.7614 2 10 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M10 12V18M6 18H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="font-medium">Other</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4">
+                <button
+                  onClick={handleSaveAddress}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  SAVE ADDRESS AND PROCEED
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </>
   )
 }

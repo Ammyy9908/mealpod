@@ -15,8 +15,6 @@ function index() {
   // Always show dropdown in development for local testing
   const isDevelopment = false;
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(isDevelopment)
-  const [userProfile, setUserProfile] = useState(null)
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const dropdownRef = useRef(null)
   const mobileMenuRef = useRef(null)
@@ -24,42 +22,6 @@ function index() {
   const isLoggedIn = status === 'authenticated' || isDevelopment
   const userInfo = session?.user
   
-
-
-  // Fetch user profile from backend
-  const fetchUserProfile = useCallback(async () => {
-    if (!isLoggedIn) return
-    
-    setIsLoadingProfile(true)
-    try {
-      const response = await fetch('/api/user/profile', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Include cookies for authentication
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setUserProfile(data.user || data)
-      } else {
-        // Handle different error status codes
-        if (response.status === 404) {
-          console.error('User profile API endpoint not found (404)')
-        } else if (response.status === 401) {
-          console.error('Unauthorized - user not authenticated')
-        } else {
-          const errorData = await response.json().catch(() => ({}))
-          console.error('Failed to fetch user profile:', errorData.message || `Status: ${response.status}`)
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching user profile:', error)
-    } finally {
-      setIsLoadingProfile(false)
-    }
-  }, [isLoggedIn])
 
 
   const handleCloseLoginModal = useCallback(() => {
@@ -104,14 +66,6 @@ function index() {
     }
   }, [isMobileMenuOpen])
 
-  // Fetch user profile when user is logged in
-  useEffect(() => {
-    if (isLoggedIn) {
-      fetchUserProfile()
-    } else {
-      setUserProfile(null)
-    }
-  }, [isLoggedIn, fetchUserProfile])
 
   const handleGoogleSignIn = async () => {
     try {
@@ -232,10 +186,10 @@ function index() {
                         className='hidden sm:flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-teal-700 hover:bg-teal-800 active:bg-teal-900 transition-colors touch-manipulation flex-shrink-0'
                         aria-label="User menu"
                       >
-                        {userProfile?.picture || userInfo?.picture ? (
+                        {userInfo?.picture ? (
                           <img 
-                            src={userProfile?.picture || userInfo.picture} 
-                            alt={userProfile?.name || userInfo.name || 'User'} 
+                            src={userInfo.picture} 
+                            alt={userInfo.name || 'User'} 
                             className='w-full h-full rounded-full object-cover'
                           />
                         ) : (
@@ -268,10 +222,10 @@ function index() {
                           {/* User Info Section */}
                           <div className='p-4 flex items-center gap-3 border-b border-gray-100'>
                             <div className='w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center bg-gray-50 flex-shrink-0'>
-                              {userProfile?.picture || userInfo?.picture ? (
+                              {userInfo?.picture ? (
                                 <img 
-                                  src={userProfile?.picture || userInfo.picture} 
-                                  alt={userProfile?.name || userInfo.name || 'User'} 
+                                  src={userInfo.picture} 
+                                  alt={userInfo.name || 'User'} 
                                   className='w-full h-full rounded-full object-cover'
                                 />
                               ) : (
@@ -283,12 +237,9 @@ function index() {
                             </div>
                             <div className='flex-1 min-w-0'>
                               <p className='text-sm font-semibold text-gray-900 truncate'>
-                                {userProfile?.phone || userProfile?.name || userInfo?.name || userInfo?.email?.split('@')[0] || 'User'}
+                                {userInfo?.name || userInfo?.email?.split('@')[0] || 'User'}
                               </p>
-                              {userProfile?.phone && (
-                                <p className='text-xs text-gray-500 truncate'>{userProfile.phone}</p>
-                              )}
-                              {!userProfile?.phone && userInfo?.email && (
+                              {userInfo?.email && (
                                 <p className='text-xs text-gray-500 truncate'>{userInfo.email}</p>
                               )}
                             </div>
@@ -507,10 +458,10 @@ function index() {
                 {/* User Info */}
                 <div className="px-4 py-3 flex items-center gap-3 border-b border-gray-100">
                   <div className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center bg-gray-50 flex-shrink-0">
-                    {userProfile?.picture || userInfo?.picture ? (
+                    {userInfo?.picture ? (
                       <img
-                        src={userProfile?.picture || userInfo.picture}
-                        alt={userProfile?.name || userInfo.name || 'User'}
+                        src={userInfo.picture}
+                        alt={userInfo.name || 'User'}
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
@@ -522,12 +473,9 @@ function index() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">
-                      {userProfile?.phone || userProfile?.name || userInfo?.name || userInfo?.email?.split('@')[0] || 'User'}
+                      {userInfo?.name || userInfo?.email?.split('@')[0] || 'User'}
                     </p>
-                    {userProfile?.phone && (
-                      <p className="text-xs text-gray-500 truncate">{userProfile.phone}</p>
-                    )}
-                    {!userProfile?.phone && userInfo?.email && (
+                    {userInfo?.email && (
                       <p className="text-xs text-gray-500 truncate">{userInfo.email}</p>
                     )}
                   </div>

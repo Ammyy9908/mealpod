@@ -1,4 +1,5 @@
 import { getAuthSession } from '@/lib/auth'
+import { cookies } from 'next/headers'
 
 // Backend API base URL - update this with your actual backend URL
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001/api'
@@ -47,14 +48,22 @@ export async function POST(request) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get access_token from cookies
+    const cookieStore = await cookies()
+    const accessToken = cookieStore.get('access_token')?.value
+
+    if (!accessToken) {
+      return Response.json({ error: 'Access token not found' }, { status: 401 })
+    }
+
     const body = await request.json()
 
     // Call your backend API to create new address
-    const response = await fetch(`${BACKEND_API_URL}/user/addresses`, {
+    const response = await fetch(`${BACKEND_API_URL}/address`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.user.id}`,
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify(body),
     })
