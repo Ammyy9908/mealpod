@@ -37,13 +37,22 @@ function index() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include cookies for authentication
       })
 
       if (response.ok) {
         const data = await response.json()
         setUserProfile(data.user || data)
       } else {
-        console.error('Failed to fetch user profile')
+        // Handle different error status codes
+        if (response.status === 404) {
+          console.error('User profile API endpoint not found (404)')
+        } else if (response.status === 401) {
+          console.error('Unauthorized - user not authenticated')
+        } else {
+          const errorData = await response.json().catch(() => ({}))
+          console.error('Failed to fetch user profile:', errorData.message || `Status: ${response.status}`)
+        }
       }
     } catch (error) {
       console.error('Error fetching user profile:', error)
