@@ -180,7 +180,8 @@ function index() {
                     </a>
 
                     {/* Cart Button */}
-                    <button 
+                    <Link 
+                      href="/cart"
                       className='flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation min-h-[44px] sm:min-h-0'
                       aria-label="Cart"
                     >
@@ -190,7 +191,7 @@ function index() {
                             <path d="M8 12L9 13L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                         <span className='text-xs sm:text-sm font-medium hidden sm:inline'>Cart {cartCount}</span>
-                    </button>
+                    </Link>
                   </div>
 
                   {/* Mobile Hamburger Menu Button */}
@@ -474,7 +475,8 @@ function index() {
             </a>
 
             {/* Cart */}
-            <button
+            <Link
+              href="/cart"
               onClick={() => setIsMobileMenuOpen(false)}
               className="w-full px-4 py-4 flex items-center gap-3 active:bg-gray-50 hover:bg-gray-50 transition-colors text-left touch-manipulation min-h-[56px]"
               aria-label="Cart"
@@ -485,7 +487,7 @@ function index() {
                 <path d="M8 12L9 13L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-sm text-gray-700 font-medium">Cart</span>
-            </button>
+            </Link>
 
             {/* Divider */}
             <div className="border-t border-gray-100 my-2"></div>
