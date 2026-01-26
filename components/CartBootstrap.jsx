@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { fetchCart } from "@/store/cartSlice";
+import { fetchCart } from "@/app/store/cartSlice";
 
 export default function CartBootstrap() {
   const dispatch = useDispatch();
