@@ -14,7 +14,7 @@ export async function getSubscriptionsSku() {
 export async function getItems(skuId) {
   
   try{
-    const r = await axios.get(`${process.env.BACKEND_API_URL}/subscriptions?sku=${skuId}`);
+    const r = await axios.get(`${process.env.BACKEND_API_URL}/subscriptions?sku_id=${skuId}`);
     return r.data;
 } catch (error) {
   console.error('Error fetching products:', error);
