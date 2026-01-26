@@ -2,7 +2,7 @@ import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 
 // Backend API base URL - update this with your actual backend URL
-const BACKEND_API_URL = process.env.BACKEND_API_URL || 'http://localhost:3001/api'
+const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3001/api'
 
 const handler = NextAuth({
   providers: [

@@ -4,7 +4,7 @@ const initialState = {
   status: "idle",
 };
 
-const API_BASE = `${process.env.BACKEND_API_URL}`; // change if needed
+const API_BASE = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}`; // change if needed
 
 export const fetchCart = createAsyncThunk("cart/fetch", async () => {
   const res = await fetch(`${API_BASE}/cart`, {
