@@ -7,7 +7,7 @@ const initialState = {
 const API_BASE = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}`; // change if needed
 
 export const fetchCart = createAsyncThunk("cart/fetch", async () => {
-  const res = await fetch(`${API_BASE}/cart`, {
+  const res = await fetch(`https://api.mealpod.shop/cart`, {
     credentials: "include",
   });
 
@@ -19,7 +19,7 @@ export const fetchCart = createAsyncThunk("cart/fetch", async () => {
 export const setSubscription = createAsyncThunk(
   "cart/setSubscription",
   async (productId) => {
-    const res = await fetch(`${API_BASE}/cart`, {
+    const res = await fetch(`https://api.mealpod.shop/cart`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -33,7 +33,7 @@ export const setSubscription = createAsyncThunk(
 );
 
 export const clearCart = createAsyncThunk("cart/clear", async () => {
-  const res = await fetch(`${API_BASE}/cart`, {
+  const res = await fetch(`https://api.mealpod.shop/cart`, {
     method: "DELETE",
     credentials: "include",
   });
