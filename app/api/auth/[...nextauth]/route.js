@@ -38,7 +38,7 @@ const handler = NextAuth({
             email: user.email,
             name: user.name,
             picture: user.image,
-            googleId: user.id,
+            userId: user.id,
             phone: phoneNumber, // Send phone if available, else empty string
             // Add any other fields you want to send to your backend
           }
