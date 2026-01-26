@@ -11,9 +11,9 @@ function Page() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [editingAddressId, setEditingAddressId] = useState(null)
   const [formData, setFormData] = useState({
     address: '',
-    doorFlatNo: '',
     addressLine2: '',
     city: '',
     pincode: '',
@@ -101,12 +101,11 @@ function Page() {
 
   const formatAddress = (address) => {
     const parts = []
-    if (address.address_line_1) parts.push(address.address_line_1)
-    if (address.address_line_2) parts.push(address.address_line_2)
+    if (address.address) parts.push(address.address)
+    if (address.addressLine2) parts.push(address.addressLine2)
     if (address.city) parts.push(address.city)
     if (address.state) parts.push(address.state)
-    if (address.postal_code) parts.push(address.postal_code)
-    if (address.country) parts.push(address.country)
+    if (address.pincode) parts.push(address.pincode)
     
     let formatted = parts.join(', ')
     
@@ -136,6 +135,20 @@ function Page() {
     }))
   }
 
+  const handleEdit = (address) => {
+    // Populate form with address data
+    setFormData({
+      address: address.address || address.address_line_1 || '',
+      addressLine2: address.addressLine2 || address.address_line_2 || '',
+      city: address.city || '',
+      pincode: address.pincode || address.postal_code || '',
+      state: address.state || '',
+      addressType: address.addressType || address.type || 'home'
+    })
+    setEditingAddressId(address.id || address._id)
+    setIsAddAddressModalOpen(true)
+  }
+
   const handleSaveAddress = async () => {
     // Validate required fields
     if (!formData.address.trim() || !formData.city.trim() || !formData.pincode.trim() || !formData.state.trim() || !formData.addressType) {
@@ -145,15 +158,9 @@ function Page() {
 
     setIsSaving(true)
     try {
-      // Build address_line_1 with door/flat number if provided
-      let addressLine1 = formData.address.trim()
-      if (formData.doorFlatNo.trim()) {
-        addressLine1 = `${formData.doorFlatNo.trim()}, ${addressLine1}`
-      }
-
       // Prepare address data for backend
       const addressData = {
-        address: addressLine1,
+        address: formData.address.trim(),
         addressLine2: formData.addressLine2.trim() || '',
         city: formData.city.trim(),
         state: formData.state.trim(),
@@ -162,39 +169,64 @@ function Page() {
         country: 'India' // Default to India
       }
 
-      const response = await fetch('/api/user/addresses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(addressData),
-      })
+      let response
+      if (editingAddressId) {
+        // Update existing address
+        response = await fetch('/api/user/addresses', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            addressId: editingAddressId,
+            ...addressData
+          }),
+        })
+      } else {
+        // Create new address
+        response = await fetch('/api/user/addresses', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(addressData),
+        })
+      }
 
       if (response.ok) {
         const data = await response.json()
         
-        // Add the new address to the list
-        const newAddress = data.address || data
-        setAddresses(prev => [...prev, newAddress])
+        if (editingAddressId) {
+          // Update the address in the list
+          setAddresses(prev => prev.map(addr => 
+            (addr.id === editingAddressId || addr._id === editingAddressId) 
+              ? (data.address || data) 
+              : addr
+          ))
+          alert('Address updated successfully!')
+        } else {
+          // Add the new address to the list
+          const newAddress = data.address || data
+          setAddresses(prev => [...prev, newAddress])
+          alert('Address saved successfully!')
+        }
         
         // Close modal and reset form
         setIsAddAddressModalOpen(false)
+        setEditingAddressId(null)
         setFormData({
           address: '',
-          doorFlatNo: '',
           addressLine2: '',
           city: '',
           pincode: '',
           state: '',
           addressType: 'home'
         })
-        
-        // Show success message
-        alert('Address saved successfully!')
       } else {
         const errorData = await response.json().catch(() => ({}))
-        alert(errorData.message || 'Failed to save address. Please try again.')
+        alert(errorData.message || `Failed to ${editingAddressId ? 'update' : 'save'} address. Please try again.`)
       }
     } catch (error) {
       console.error('Error saving address:', error)
@@ -206,9 +238,9 @@ function Page() {
 
   const handleCloseModal = () => {
     setIsAddAddressModalOpen(false)
+    setEditingAddressId(null)
     setFormData({
       address: '',
-      doorFlatNo: '',
       addressLine2: '',
       city: '',
       pincode: '',
@@ -302,26 +334,23 @@ function Page() {
                     >
                       {/* Address Type */}
                       <div className="flex items-center gap-2 mb-3">
-                        {getAddressTypeIcon(address.type || address.address_type)}
+                        {getAddressTypeIcon(address.addressType)}
                         <span className="font-semibold text-gray-900 capitalize">
-                          {address.type || address.address_type || 'Address'}
+                          { address.addressType}
                         </span>
                       </div>
 
                       {/* Address Details */}
                       <div className="mb-4">
                         <p className="text-gray-700 leading-relaxed">
-                          {formatAddress(address) || address.full_address || 'No address details available'}
+                          {formatAddress(address)}
                         </p>
                       </div>
 
                       {/* Action Buttons */}
                       <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
                         <button
-                          onClick={() => {
-                            // TODO: Implement edit functionality
-                            console.log('Edit address:', address)
-                          }}
+                          onClick={() => handleEdit(address)}
                           className="text-green-600 hover:text-green-700 font-medium transition-colors touch-manipulation"
                         >
                           EDIT
@@ -358,7 +387,9 @@ function Page() {
             <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               {/* Header */}
               <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
-                <h2 className="text-xl font-semibold text-gray-900">Set Location</h2>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {editingAddressId ? 'Edit Location' : 'Set Location'}
+                </h2>
                 <button
                   onClick={handleCloseModal}
                   className="text-gray-400 hover:text-gray-600 transition-colors p-1"
@@ -384,20 +415,6 @@ function Page() {
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
                     required
-                  />
-                </div>
-
-                {/* Door/Flat No */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Door / Flat No
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.doorFlatNo}
-                    onChange={(e) => handleInputChange('doorFlatNo', e.target.value)}
-                    placeholder="e.g., B603"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                 </div>
 
@@ -534,7 +551,7 @@ function Page() {
                   onClick={handleSaveAddress}
                   className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
-                  SAVE ADDRESS AND PROCEED
+                  {editingAddressId ? 'UPDATE ADDRESS AND PROCEED' : 'SAVE ADDRESS AND PROCEED'}
                 </button>
               </div>
             </div>
