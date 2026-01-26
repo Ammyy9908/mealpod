@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/header/index.jsx'
 import Container from '@/components/container/index.jsx'
-import { fetchCart, clearCart } from '../../store/cartSlice'
+import { fetchCart, clearCart } from '../store/cartSlice'
 import Image from 'next/image'
 
 function CartPage() {
@@ -27,7 +27,7 @@ function CartPage() {
 
       try {
         // Fetch subscription details based on productId
-        const response = await fetch(`/api/items?sku=${cart.productId}`)
+        const response = await fetch(`/api/subscription?product_id=${cart.productId}`)
         if (response.ok) {
           const data = await response.json()
           if (data.subscriptions && data.subscriptions.length > 0) {
