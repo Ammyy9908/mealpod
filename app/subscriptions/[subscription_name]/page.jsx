@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import { useSession, signIn } from 'next-auth/react'
 import Header from '@/components/header/index.jsx'
 import Container from '@/components/container/index.jsx'
 import SubscriptionPlanCard from '@/components/subscription-plan-card/index.jsx'
@@ -63,7 +64,8 @@ const getPlaceholderData = (skuId = 'special_thali') => {
 
 function Page() {
   const dispatch = useDispatch();
-const cart = useSelector((state) => state.cart);
+  const cart = useSelector((state) => state.cart);
+  const { data: session, status } = useSession()
   const params = useParams()
   const subscriptionName = params?.subscription_name
   const [subscriptionPlans, setSubscriptionPlans] = useState([])
@@ -130,13 +132,32 @@ const cart = useSelector((state) => state.cart);
     }
   }, [subscriptionName])
 
-  const handleAddToCart = (plan) => {
-    // TODO: Implement add to cart functionality
+  const handleAddToCart = async (plan) => {
+    // Check if user is authenticated
+    if (status !== 'authenticated') {
+      // Ask user to login
+      const shouldLogin = confirm('Please login to add items to your cart. Would you like to login now?')
+      if (shouldLogin) {
+        try {
+          await signIn('google', {
+            callbackUrl: window.location.href,
+            redirect: false
+          })
+        } catch (error) {
+          console.error('Error during sign in:', error)
+          alert('Failed to sign in. Please try again.')
+        }
+      }
+      return
+    }
+
+    // Validate plan object
     if (!plan?.id) {
       console.error("Invalid plan object:", plan);
       return;
     }
   
+    // Add to cart
     dispatch(setSubscription(plan.id));
   }
 
