@@ -20,8 +20,13 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
+        env:
+          NEXT_PUBLIC_BACKEND_API_URL: https://api.mealpod.shop
         run: |
-          docker build -t ammyy9908/mealpod:latest .
+          docker build \
+            --build-arg NEXT_PUBLIC_BACKEND_API_URL=$NEXT_PUBLIC_BACKEND_API_URL \
+            -t ammyy9908/mealpod:latest .
+
           docker push ammyy9908/mealpod:latest
 
       - name: Setup kubectl
