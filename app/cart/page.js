@@ -116,7 +116,7 @@ function CartPage() {
     )
   }
 
-  const subscription = cart?.cart?.product;
+  const subscription = cart?.product;
   const price = subscription?.pricing.price || 0
   const originalPrice = subscription?.pricing.original_price || 0
   const discount = subscription?.pricing.discount_percentage || 0
