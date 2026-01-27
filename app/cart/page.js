@@ -16,6 +16,7 @@ function CartPage() {
 
   useEffect(() => {
     dispatch(fetchCart())
+    setIsLoading(false)
   }, [dispatch])
 
   // useEffect(() => {
