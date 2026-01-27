@@ -219,7 +219,7 @@ function CartPage() {
           </div>
 
           {/* Order Summary */}
-          {/* <div className="lg:col-span-1">
+          <div className="lg:col-span-1">
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 sticky top-4">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
               
@@ -256,7 +256,7 @@ function CartPage() {
                 Continue Shopping
               </button>
             </div>
-          </div> */}
+          </div>
         </div>
       </Container>
     </>
