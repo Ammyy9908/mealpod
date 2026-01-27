@@ -56,7 +56,7 @@ function Page() {
 
     fetchOrders()
     }, [status])
-    console.log(subscriptions)
+    console.log(subscription)
   return (
     <>
       <Header />
