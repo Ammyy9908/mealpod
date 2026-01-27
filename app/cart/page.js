@@ -6,13 +6,16 @@ import Header from '@/components/header/index.jsx'
 import Container from '@/components/container/index.jsx'
 import { fetchCart, clearCart } from '../store/cartSlice'
 import Image from 'next/image'
+import CheckoutButton from '@/components/CheckoutButton'
 
 function CartPage() {
   const dispatch = useDispatch()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const cart = useSelector((state) => state.cart)
   const [subscriptionDetails, setSubscriptionDetails] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const user = session?.user
 
   useEffect(() => {
     dispatch(fetchCart())
@@ -55,9 +58,7 @@ function CartPage() {
     }
   }
 
-  const handleCheckout = () => {
-    router.push('/checkout')
-  }
+
 
   const handleContinueShopping = () => {
     router.push('/home')
@@ -242,12 +243,7 @@ function CartPage() {
                 </div>
               </div>
 
-              <button
-                onClick={handleCheckout}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors mb-3"
-              >
-                Proceed to Checkout
-              </button>
+              <CheckoutButton product={subscription} user={user} />
 
               <button
                 onClick={handleContinueShopping}
