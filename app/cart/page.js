@@ -78,7 +78,7 @@ function CartPage() {
 
   console.log(cart)
 
-  if (!cart) {
+  if (!cart?.cart) {
     return (
       <>
         <Header />
@@ -116,14 +116,12 @@ function CartPage() {
     )
   }
 
-  // const subscription = subscriptionDetails
-  // const price = subscription?.pricing?.price || 0
-  // const originalPrice = subscription?.pricing?.original_price || 0
-  // const discount = subscription?.pricing?.discount_percentage || 0
-  // const displayName = subscription?.display_name || 'Subscription Plan'
-  // const planDuration = subscription?.plan
-  //   ? `${subscription.plan.duration_days}-Day Plan (${subscription.plan.meals_per_day} meal/day)`
-  //   : ''
+  const subscription = cart?.cart?.product;
+  const price = subscription?.pricing.price || 0
+  const originalPrice = subscription?.pricing.original_price || 0
+  const discount = subscription?.pricing.discount_percentage || 0
+  const displayName = subscription?.display_name || 'Subscription Plan'
+  const planDuration = `${subscription?.plan.duration_days || 0}-Day Plan (${subscription?.plan.meals_per_day || 1} meal/day)`
 
   return (
     <>
@@ -143,20 +141,20 @@ function CartPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   {/* Image */}
                   <div className="relative w-full sm:w-32 h-32 sm:h-32 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                    {/* <Image
+                    <Image
                       src={`/${subscription?.sku_id || 'special_thali'}.png`}
                       alt={displayName}
                       fill
                       className="object-cover"
                       sizes="(max-width: 640px) 100vw, 128px"
-                    /> */}
+                    />
                   </div>
 
                   {/* Details */}
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">Display Name</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">{displayName}</h3>
                         <button
                           onClick={handleClearCart}
                           className="text-gray-400 hover:text-red-600 transition-colors p-1"
@@ -179,10 +177,10 @@ function CartPage() {
                           </svg>
                         </button>
                       </div>
-                      {/* {planDuration && (
+                      {planDuration && (
                         <p className="text-sm text-gray-500 mb-2">{planDuration}</p>
-                      )} */}
-                      {/* {subscription?.is_veg && (
+                      )}
+                      {subscription?.is_veg && (
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-5 h-5 bg-green-600 rounded-sm flex items-center justify-center">
                             <div className="w-3 h-3 bg-white rounded-full flex items-center justify-center">
@@ -193,11 +191,11 @@ function CartPage() {
                           </div>
                           <span className="text-xs text-gray-600">Vegetarian</span>
                         </div>
-                      )} */}
+                      )}
                     </div>
 
                     {/* Price */}
-                    {/* <div className="flex items-baseline gap-2 mt-2">
+                    <div className="flex items-baseline gap-2 mt-2">
                       <span className="text-xl font-bold text-gray-900">
                         ₹{price.toLocaleString()}
                       </span>
@@ -213,7 +211,7 @@ function CartPage() {
                           )}
                         </>
                       )}
-                    </div> */}
+                    </div>
                   </div>
                 </div>
               </div>
