@@ -41,7 +41,7 @@ export default function CheckoutButton({
     // 3️⃣ Configure Razorpay Checkout
     const options = {
       key: data.key, // rzp_test_xxx
-      amount: data.amount,
+      amount: data.amount * 100,
       currency: data.currency,
 
       name: "Meal Subscription",
@@ -59,7 +59,9 @@ export default function CheckoutButton({
             body: JSON.stringify({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature
+              razorpay_signature: response.razorpay_signature,
+              userId: user.id,
+              productId: product._id
             })
           }
         );
@@ -94,7 +96,7 @@ export default function CheckoutButton({
       onClick={handleCheckout}
       className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium"
     >
-      Subscribe for ₹{product.price}
+      Subscribe for ₹{product.pricing.price}
     </button>
   );
 }
