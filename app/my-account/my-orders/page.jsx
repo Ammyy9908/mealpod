@@ -3,14 +3,17 @@ import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Header from '@/components/header/index.jsx'
 import ProfileAside from '@/components/profile/aside/index.jsx'
+import { useSelector } from 'react-redux'
 
 function Page() {
   const { data: session, status } = useSession()
   const [activeTab, setActiveTab] = useState('meals')
   const [mealOrders, setMealOrders] = useState([])
-  const [subscriptions, setSubscriptions] = useState([])
+  const subscriptions = useSelector((state) => state.subscription.subscriptions)
   const [isLoading, setIsLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -30,17 +33,17 @@ function Page() {
           }
 
           // Fetch subscriptions
-          const subscriptionResponse = await fetch('/api/user/subscriptions', {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
+          // const subscriptionResponse = await fetch('/api/user/subscriptions', {
+          //   method: 'GET',
+          //   headers: {
+          //     'Content-Type': 'application/json',
+          //   },
+          // })
 
-          if (subscriptionResponse.ok) {
-            const subscriptionData = await subscriptionResponse.json()
-            setSubscriptions(Array.isArray(subscriptionData) ? subscriptionData : (subscriptionData.subscriptions || []))
-          }
+          // if (subscriptionResponse.ok) {
+          //   const subscriptionData = await subscriptionResponse.json()
+          //   setSubscriptions(Array.isArray(subscriptionData) ? subscriptionData : (subscriptionData.subscriptions || []))
+          // }
         } catch (error) {
           console.error('Error fetching orders:', error)
         } finally {
@@ -53,7 +56,7 @@ function Page() {
 
     fetchOrders()
   }, [status])
-
+  console.log(subscriptions)
   return (
     <>
       <Header />
