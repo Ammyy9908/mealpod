@@ -5,9 +5,12 @@ import loadRazorpay from "@/lib/loadRazorpay";
 
 export default function CheckoutButton({
   product,
-  user
+  user,
+  address,
+  deliverySlot,
+  startDate,
+  specialInstructions,
 }) {
-  console.log(product, user)
   const handleCheckout = async () => {
     // 1️⃣ Load Razorpay SDK
     const sdkLoaded = await loadRazorpay();
@@ -25,7 +28,11 @@ export default function CheckoutButton({
         credentials: "include", // if using cookies/session
         body: JSON.stringify({
           productId: product._id,
-          userId: user.id // TEMP — will remove once auth middleware added
+          userId: user.id, // TEMP — will remove once auth middleware added,
+          address: address,
+          slot: deliverySlot,
+          start_date: startDate,
+          special_instruction: specialInstructions
         })
       }
     );
@@ -70,7 +77,7 @@ export default function CheckoutButton({
 
         if (verifyData.success) {
           alert("🎉 Subscription activated!");
-          window.location.href = "/dashboard";
+          window.location.href = "/my-account/my-orders";
         } else {
           alert("Payment verification failed");
         }

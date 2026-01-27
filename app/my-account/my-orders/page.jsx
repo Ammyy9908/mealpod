@@ -205,7 +205,7 @@ function Page() {
                               {subscription.item?.display_name || 'Subscription Plan'}
                             </h3>
                             <p className="text-sm text-gray-500 mt-1">
-                              {subscription.subscription?.startDate ? `Started: ${new Date(subscription.item?.start_date).toLocaleDateString()}` : ''}
+                              {subscription.subscription?.startDate ? `Started: ${new Date(subscription.item?.startDate).toLocaleDateString()}` : ''}
                               {subscription.subscription?.endDate && ` - Ends: ${new Date(subscription.subscription?.endDate).toLocaleDateString()}`}
                             </p>
                           </div>
