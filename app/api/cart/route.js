@@ -29,7 +29,10 @@ export async function GET(request) {
       },
     })
 
+    console.log('Response:', response)
+
     if (!response.ok) {
+      console.error('Failed to fetch cart:', response.status, response.statusText)
       const errorData = await response.json().catch(() => ({}))
       return Response.json(
         { error: errorData.message || 'Failed to fetch cart' },

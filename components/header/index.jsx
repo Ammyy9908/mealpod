@@ -113,8 +113,8 @@ function index() {
                   {/* Logo Section */}
                   <div className='flex items-center gap-2'>
                       <a href="/" className='flex flex-col relative'>
-                          <span className='text-base sm:text-xl font-semibold text-green-600 leading-tight'>mealpod</span>
-                          <span className='text-xs text-green-400 hidden sm:block'>Khao Ghar Ka...</span>
+                          <span className='text-base sm:text-xl font-semibold text-green-600 leading-tight'>DesiThali</span>
+                          
                       </a>
                   </div>
               </div>
