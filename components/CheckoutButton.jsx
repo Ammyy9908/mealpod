@@ -18,7 +18,7 @@ export default function CheckoutButton({
 
     // 2️⃣ Call backend → create-order
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/payment/create-order`,
+      `https://api.mealpod.shop/payment/create-order`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,7 +51,7 @@ export default function CheckoutButton({
       handler: async function (response) {
         // 4️⃣ Verify payment on backend (fallback)
         const verifyRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/payment/verify-payment`,
+          `https://api.mealpod.shop/payment/verify-payment`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
