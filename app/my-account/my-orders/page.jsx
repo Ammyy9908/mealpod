@@ -9,7 +9,7 @@ function Page() {
   const { data: session, status } = useSession()
   const [activeTab, setActiveTab] = useState('meals')
   const [mealOrders, setMealOrders] = useState([])
-  const subscriptions = useSelector((state) => state.subscription.subscriptions)
+  const subscription = useSelector((state) => state.subscription)
   const [isLoading, setIsLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
@@ -55,8 +55,8 @@ function Page() {
     }
 
     fetchOrders()
-  }, [status])
-  console.log(subscriptions)
+    }, [status])
+    console.log(subscriptions)
   return (
     <>
       <Header />
@@ -184,7 +184,7 @@ function Page() {
                   {/* Subscription Orders */}
                   {activeTab === 'subscription' && (
                     <div className="space-y-4">
-                      {subscriptions.length === 0 ? (
+                      {!subscription.subscription ? (
                         <div className="text-center py-12">
                           <svg width="64" height="64" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 text-gray-400">
                             <rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -195,50 +195,45 @@ function Page() {
                           <p className="text-gray-400 text-sm mt-2">Your subscription packages will appear here</p>
                         </div>
                       ) : (
-                        subscriptions.map((subscription) => (
-                          <div
-                            key={subscription.id || subscription._id}
-                            className="bg-gray-50 rounded-lg border border-gray-200 p-6"
-                          >
-                            <div className="flex items-start justify-between mb-4">
-                              <div>
-                                <h3 className="font-semibold text-gray-900">
-                                  {subscription.name || subscription.plan_name || 'Subscription Plan'}
-                                </h3>
-                                <p className="text-sm text-gray-500 mt-1">
-                                  {subscription.start_date ? `Started: ${new Date(subscription.start_date).toLocaleDateString()}` : ''}
-                                  {subscription.end_date && ` - Ends: ${new Date(subscription.end_date).toLocaleDateString()}`}
-                                </p>
-                              </div>
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                subscription.status === 'active' 
-                                  ? 'bg-green-100 text-green-800'
-                                  : subscription.status === 'expired'
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {subscription.status || 'Active'}
-                              </span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4 mt-4">
-                              <div>
-                                <p className="text-sm text-gray-500">Duration</p>
-                                <p className="font-medium text-gray-900">
-                                  {subscription.duration || subscription.plan_duration || 'N/A'}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-gray-500">Price</p>
-                                <p className="font-bold text-green-600">
-                                  ₹{subscription.price || subscription.plan_price || 0}
-                                </p>
-                              </div>
-                            </div>
-                            {subscription.description && (
-                              <p className="text-sm text-gray-600 mt-4">{subscription.description}</p>
-                            )}
+                        <div
+                        key={subscription.subscription._id}
+                        className="bg-gray-50 rounded-lg border border-gray-200 p-6"
+                      >
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <h3 className="font-semibold text-gray-900">
+                              {subscription.item?.display_name || 'Subscription Plan'}
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-1">
+                              {subscription.subscription?.startDate ? `Started: ${new Date(subscription.item?.start_date).toLocaleDateString()}` : ''}
+                              {subscription.subscription?.endDate && ` - Ends: ${new Date(subscription.subscription?.endDate).toLocaleDateString()}`}
+                            </p>
                           </div>
-                        ))
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            subscription.subscription?.status === 'active' 
+                              ? 'bg-green-100 text-green-800'
+                              : subscription.subscription?.status === 'expired'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {subscription.subscription?.status || 'Active'}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 mt-4">
+                          <div>
+                            <p className="text-sm text-gray-500">Duration</p>
+                            <p className="font-medium text-gray-900">
+                              {subscription?.item?.plan?.duration_days  || 'N/A'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Price</p>
+                            <p className="font-bold text-green-600">
+                              ₹{subscription?.item?.pricing?.price || 0}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       )}
                     </div>
                   )}
