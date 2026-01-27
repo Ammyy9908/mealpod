@@ -7,6 +7,7 @@ import Container from '@/components/container/index.jsx'
 import { fetchCart, clearCart } from '../store/cartSlice'
 import Image from 'next/image'
 import CheckoutButton from '@/components/CheckoutButton'
+import { useSession } from 'next-auth/react'
 
 function CartPage() {
   const dispatch = useDispatch()
