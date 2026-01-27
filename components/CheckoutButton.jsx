@@ -10,6 +10,7 @@ export default function CheckoutButton({
   deliverySlot,
   startDate,
   specialInstructions,
+  orderType
 }) {
   const handleCheckout = async () => {
     // 1️⃣ Load Razorpay SDK
@@ -32,7 +33,8 @@ export default function CheckoutButton({
           address: address,
           slot: deliverySlot,
           start_date: startDate,
-          special_instruction: specialInstructions
+          special_instruction: specialInstructions,
+          orderType: orderType
         })
       }
     );

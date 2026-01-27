@@ -11,7 +11,7 @@ function SubscriptionPlanCard({ plan, onAddToCart }) {
 
   return (
     <div className="bg-white rounded-lg lg:rounded-lg md:rounded-xl sm:rounded-xl overflow-hidden border-0 lg:border lg:border-gray-200 shadow-sm lg:shadow-lg md:shadow-xl sm:shadow-xl hover:shadow-xl md:hover:shadow-2xl sm:hover:shadow-2xl transition-shadow duration-300">
-      <div className="flex flex-col lg:flex-row items-center justify-center">
+      <div className="flex flex-col-reverse lg:flex-row items-center justify-center">
         {/* Left Side - Text Information */}
         <div className="flex-1 p-6 lg:p-8 md:p-8 sm:p-6 bg-white w-full">
          <div className='flex items-center gap-2 mb-3'>

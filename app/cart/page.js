@@ -450,6 +450,7 @@ function CartPage() {
                 deliverySlot={deliverySlot}
                 startDate={startDate}
                 specialInstructions={specialInstructions}
+                orderType={"subscription"}
               />
 
               <button
