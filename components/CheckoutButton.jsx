@@ -22,7 +22,7 @@ export default function CheckoutButton({
 
     // 2️⃣ Call backend → create-order
     const res = await fetch(
-      `https://api.mealpod.shop/payment/create-order`,
+      `https://api.desithali.com/payment/create-order`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,7 +60,7 @@ export default function CheckoutButton({
       handler: async function (response) {
         // 4️⃣ Verify payment on backend (fallback)
         const verifyRes = await fetch(
-          `https://api.mealpod.shop/payment/verify-payment`,
+          `https://api.desithali.com/payment/verify-payment`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
